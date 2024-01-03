@@ -1,26 +1,30 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+import express from 'express';
+import path from 'path';
+import cookieParser from 'cookie-parser';
+import * as httpErrors from 'http-errors';
+const { createError } = httpErrors;
+import { router as indexRouter } from './routes/index.js';
+import { fileURLToPath } from 'url';
+import http from 'http';
+import { router as newPostRouter } from './routes/new.js';
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+// get and store __dirname and __filename vars
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-var app = express();
+const app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/new', newPostRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -38,4 +42,8 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-module.exports = app;
+app.set('port', 3000);
+const server = http.createServer(app);
+
+server.listen(3000);
+export default app;
